@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { makeT } from '../lib/i18n.js';
 import { fmtDate, todayStr } from '../lib/utils.js';
+import { placeText } from '../lib/weather.js';
 
 const X = {
   hi: {
@@ -65,7 +66,7 @@ export default function FieldTab({ lang, place, field, history, onEdit, onReset,
           <br />
           {t('sowDate')}: {field.sowDate}
           <br />
-          {place.gps ? t('gpsPlace') : place.name}
+          {placeText(place, t('gpsPlace'))}
         </p>
         <button className="btn" onClick={onEdit}>
           {t('editField')}

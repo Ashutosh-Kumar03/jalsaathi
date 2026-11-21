@@ -37,7 +37,7 @@ A small farmer growing **wheat or rice** who wants one clear answer each morning
 5. A Field tab keeps a log of the days the farmer recorded watering (including earlier dates added
    by hand) and shows how many days matched the app's advice. Only the most recent watering date
    feeds the advice engine. Nothing is guessed or filled in.
-   
+
 Hindi and English, mobile-first, large buttons, works in a phone browser.
 
 ## What is different from what already exists
@@ -88,6 +88,8 @@ Hindi and English, mobile-first, large buttons, works in a phone browser.
 - No login. Field data is stored only in the browser (localStorage) on the farmer's device.
 - Only wheat and rice are supported for now.
 - Open-Meteo's free API is meant for non-commercial use. Check its terms before any commercial use.
+- Place names for GPS locations come from OpenStreetMap Nominatim (© OpenStreetMap contributors, ODbL).
+  When the GPS button is used, the coordinates are sent to that service to get the name.
 
 ## Run locally
 

@@ -36,6 +36,43 @@ export function getMyLocation() {
   });
 }
 
+// GPS ke coordinates se gaon/shehar ka naam (OpenStreetMap Nominatim, free, key nahi chahiye)
+export async function reverseGeocode(lat, lon, lang) {
+  const url =
+    'https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=12&addressdetails=1' +
+    '&lat=' +
+    lat +
+    '&lon=' +
+    lon +
+    '&accept-language=' +
+    (lang === 'hi' ? 'hi,en' : 'en');
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Naam nahi mila');
+  const d = await res.json();
+  const a = d.address || {};
+  const name =
+    a.village ||
+    a.hamlet ||
+    a.town ||
+    a.suburb ||
+    a.city ||
+    a.city_district ||
+    a.county ||
+    a.state_district ||
+    '';
+  const state = a.state || '';
+  if (!name && !state) throw new Error('Naam nahi mila');
+  return { name: name || state, state: name ? state : '' };
+}
+
+// Screen par dikhane layak jagah ka text. Naam na ho to GPS likhkar coordinates
+export function placeText(place, gpsLabel) {
+  if (!place) return '';
+  if (place.name) return place.name + (place.state ? ', ' + place.state : '');
+  if (place.gps) return gpsLabel + ' (' + place.lat.toFixed(2) + ', ' + place.lon.toFixed(2) + ')';
+  return '';
+}
+
 // Pichle 30 din + agle 7 din ka baarish aur ET0
 export async function getDaily(lat, lon) {
   const url =

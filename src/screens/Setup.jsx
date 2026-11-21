@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { searchPlace, getMyLocation } from '../lib/weather.js';
+import { searchPlace, getMyLocation, reverseGeocode, placeText } from '../lib/weather.js';
 import { ACRE_M2 } from '../lib/engine.js';
 import { makeT } from '../lib/i18n.js';
 import { todayStr } from '../lib/utils.js';
 
-// Pump wale naye fields ka text
+// Pump aur location ke naye fields ka text
 const X = {
   hi: {
     pumpTitle: 'पंप का खर्च (ज़रूरी नहीं)',
@@ -14,6 +14,8 @@ const X = {
     riceAssume: 'धान के लिए हम एक बार में 50 मिमी पानी भरना मानते हैं।',
     errPump: 'पंप के घंटे और रुपये सही भरें (दोनों भरें या दोनों खाली छोड़ें)।',
     errFlow: 'पंप के घंटे और खेत के आकार से पानी का बहाव अजीब आ रहा है। संख्याएँ जाँचें।',
+    detecting: 'जगह का नाम ढूँढ रहे हैं…',
+    noName: 'नाम नहीं मिला। सलाह इसी लोकेशन से बनेगी। चाहें तो ऊपर नाम से खोजकर चुन सकते हैं।',
   },
   en: {
     pumpTitle: 'Pump cost (optional)',
@@ -23,6 +25,8 @@ const X = {
     riceAssume: 'For rice we assume one irrigation fills 50 mm of water.',
     errPump: 'Enter pump hours and rupees correctly (fill both or leave both empty).',
     errFlow: 'The pump hours and field size give an odd water flow. Please check the numbers.',
+    detecting: 'Finding the place name…',
+    noName: 'Could not find a name. Advice will use this exact location. You can also search by name above.',
   },
 };
 
@@ -36,6 +40,7 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
   const [results, setResults] = useState([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
+  const [info, setInfo] = useState('');
   const [crop, setCrop] = useState(f.crop || 'wheat');
   const [soil, setSoil] = useState(f.soil || 'loam');
   const [sowDate, setSowDate] = useState(f.sowDate || '');
@@ -51,6 +56,7 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
     if (!query.trim()) return;
     setBusy(true);
     setMsg('');
+    setInfo('');
     try {
       const r = await searchPlace(query.trim());
       setResults(r);
@@ -64,12 +70,23 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
   async function useGps() {
     setBusy(true);
     setMsg('');
+    setInfo('');
     try {
       const p = await getMyLocation();
-      setPlace({ name: '', state: '', lat: p.lat, lon: p.lon, gps: true });
+      const base = { name: '', state: '', lat: p.lat, lon: p.lon, gps: true };
+      setPlace(base);
       setResults([]);
+      setInfo(x.detecting);
+      try {
+        const r = await reverseGeocode(p.lat, p.lon, lang);
+        setPlace({ ...base, name: r.name, state: r.state });
+        setInfo('');
+      } catch {
+        setInfo(x.noName); // naam nahi mila, coordinates hi dikhenge
+      }
     } catch {
       setMsg(t('gpsFail'));
+      setInfo('');
     }
     setBusy(false);
   }
@@ -112,7 +129,7 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
     });
   }
 
-  const placeLabel = place ? (place.gps ? t('gpsPlace') : place.name + (place.state ? ', ' + place.state : '')) : '';
+  const placeLabel = placeText(place, t('gpsPlace'));
 
   if (step === 0) {
     return (
@@ -164,6 +181,7 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
             onClick={() => {
               setPlace(r);
               setResults([]);
+              setInfo('');
             }}
           >
             {r.name}
@@ -174,12 +192,13 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
           {t('useGps')}
         </button>
         {msg && <p className="error">{msg}</p>}
+        {info && <p className="muted">{info}</p>}
         {place && (
           <p className="chosen">
             ✅ {t('selectedPlace')}: <b>{placeLabel}</b>
           </p>
         )}
-        <button className="btn" disabled={!place} onClick={() => setStep(2)}>
+        <button className="btn" disabled={!place || busy} onClick={() => setStep(2)}>
           {t('next')}
         </button>
       </div>

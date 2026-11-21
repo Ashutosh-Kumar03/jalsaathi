@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { makeT, stageKey } from '../lib/i18n.js';
 import { fmtDate, fmtNum } from '../lib/utils.js';
+import { placeText } from '../lib/weather.js';
 import {
   speechSupported,
   loadVoices,
@@ -33,7 +34,7 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
   const p0 = result.plan[0];
   const kind = p0.action === 'irrigate' ? 'go' : p0.action === 'rain' ? 'skip' : 'none';
   const done = field.lastIrrigation === p0.date;
-  const placeLabel = place.gps ? t('gpsPlace') : place.name;
+  const placeLabel = placeText(place, t('gpsPlace'));
 
   const [speaking, setSpeaking] = useState(false);
   const [voiceOk, setVoiceOk] = useState(false);
