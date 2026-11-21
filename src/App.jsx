@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getDaily } from './lib/weather.js';
+import { getDailyCached } from './lib/weather.js';
 import { runAdvisor } from './lib/engine.js';
 import { makeT } from './lib/i18n.js';
 import { loadState, saveState, clearState } from './lib/utils.js';
@@ -9,6 +9,20 @@ import Savings from './screens/Savings.jsx';
 import Alerts from './screens/Alerts.jsx';
 
 const EMPTY = { lang: 'hi', place: null, field: null };
+
+const OFFLINE = {
+  hi: 'ऑफ़लाइन: पिछली बार {time} पर लिया गया मौसम डेटा इस्तेमाल हो रहा है।',
+  en: 'Offline: using weather data saved last time at {time}.',
+};
+
+function fmtTime(ms, lang) {
+  return new Date(ms).toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN', {
+    day: 'numeric',
+    month: 'short',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
 
 export default function App() {
   const [state, setState] = useState(() => loadState() || EMPTY);
@@ -24,11 +38,18 @@ export default function App() {
     saveState(state);
   }, [state]);
 
+  // Internet wapas aaye to apne aap naya data le lo
+  useEffect(() => {
+    const onOnline = () => setReload((r) => r + 1);
+    window.addEventListener('online', onOnline);
+    return () => window.removeEventListener('online', onOnline);
+  }, []);
+
   useEffect(() => {
     if (!place) return undefined;
     let off = false;
     setStatus('loading');
-    getDaily(place.lat, place.lon)
+    getDailyCached(place.lat, place.lon)
       .then((w) => {
         if (!off) {
           setWeather(w);
@@ -127,6 +148,16 @@ export default function App() {
     }
   }
 
+  const offlineBanner =
+    !needSetup && weather && weather.fromCache ? (
+      <div
+        className="banner"
+        style={{ background: '#fff4d6', color: '#5a4300', fontWeight: 600, fontSize: 14 }}
+      >
+        📴 {OFFLINE[lang].replace('{time}', fmtTime(weather.fetchedAt, lang))}
+      </div>
+    ) : null;
+
   return (
     <div className="app">
       <header className="topbar">
@@ -140,6 +171,7 @@ export default function App() {
       </header>
 
       <main className="content">
+        {offlineBanner}
         {needSetup ? (
           <Setup
             key={editing ? 'edit' : 'new'}

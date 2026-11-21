@@ -1,7 +1,9 @@
-
+// Open-Meteo se asli weather data (free, API key nahi chahiye)
+import { todayStr } from './utils.js';
 
 export const PAST_DAYS = 30;
 export const FORECAST_DAYS = 7;
+const WX_KEY = 'jalsaathi:wx:v1';
 
 // Jagah ka naam search karo (sirf India)
 export async function searchPlace(name) {
@@ -59,4 +61,39 @@ export async function getDaily(lat, lon) {
     tmin: d.temperature_2m_min[i],
   }));
   return { days, todayIndex: PAST_DAYS };
+}
+
+function saveCache(lat, lon, days) {
+  try {
+    localStorage.setItem(WX_KEY, JSON.stringify({ lat, lon, fetchedAt: Date.now(), days }));
+  } catch {
+    /* storage bhara ho to bhi app chale */
+  }
+}
+
+function loadCache(lat, lon) {
+  try {
+    const raw = localStorage.getItem(WX_KEY);
+    if (!raw) return null;
+    const c = JSON.parse(raw);
+    if (Math.abs(c.lat - lat) > 0.01 || Math.abs(c.lon - lon) > 0.01) return null; // doosri jagah ka data nahi chalega
+    return c;
+  } catch {
+    return null;
+  }
+}
+
+// Pehle internet se, na mile to pichla saved data (agar aaj ki tarikh usme hai)
+export async function getDailyCached(lat, lon) {
+  try {
+    const w = await getDaily(lat, lon);
+    saveCache(lat, lon, w.days);
+    return { ...w, fromCache: false, fetchedAt: Date.now() };
+  } catch (err) {
+    const c = loadCache(lat, lon);
+    if (!c) throw err;
+    const idx = c.days.findIndex((d) => d.date === todayStr());
+    if (idx < 0) throw new Error('Saved data purana ho gaya');
+    return { days: c.days, todayIndex: idx, fromCache: true, fetchedAt: c.fetchedAt };
+  }
 }
