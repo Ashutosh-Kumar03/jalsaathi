@@ -51,7 +51,7 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
       {done ? (
         <div className="banner">✔ {t('doneBanner')}</div>
       ) : (
-        <button className="btn" onClick={onMarkDone}>
+        <button className={kind === 'go' ? 'btn' : 'btn secondary'} onClick={onMarkDone}>
           {t('markDone')}
         </button>
       )}
