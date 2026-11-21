@@ -32,9 +32,10 @@ A small farmer growing **wheat or rice** who wants one clear answer each morning
 3. It runs a daily soil-water balance and answers:
    - **Water today / Do not water (rain is coming) / No watering needed**, with millimetres and litres
    - A 7-day plan and alerts (irrigation, rain, crop-stage change)
-4. A savings screen compares the advice with the farmer's own habit, in litres.
+4. A savings screen compares the advice with the farmer's own habit, in litres, and, if the farmer
+   enters pump hours and cost, in pump hours and rupees.
 
-Hindi and English, mobile-first, large buttons, works on a phone browser.
+Hindi and English, mobile-first, large buttons, works in a phone browser.
 
 ## What is different from what already exists
 
@@ -42,6 +43,12 @@ Hindi and English, mobile-first, large buttons, works on a phone browser.
 - **Field-specific and day-by-day:** uses the farmer's own location, crop, soil and sowing date.
 - **Rain-aware:** tells the farmer to hold the water when enough rain is forecast.
 - **Stage-aware:** crop coefficients and root depth change with the growth stage.
+- **Speaks the advice:** a Listen button reads the advice aloud in Hindi or English, for farmers who
+  find reading hard. It uses the device's built-in voice, so quality depends on the phone.
+- **Works with patchy connectivity:** the app shell and the last weather data are saved on the device.
+  Offline, it still shows advice from the saved data and says clearly when that data was last updated.
+- **Savings in rupees and pump hours:** computed from the pump hours and cost the farmer enters,
+  because farmers think in diesel and electricity bills, not litres.
 - **Built for Bharat:** Hindi first, simple screens, low data use.
 
 ## How the advice is calculated
@@ -53,8 +60,11 @@ Hindi and English, mobile-first, large buttons, works on a phone browser.
 - **Rice:** a simplified alternate wetting and drying (AWD) rule. The field stays flooded at the sensitive
   stages and is allowed to dry down in between.
 - **Rain:** only rain of 2 mm or more counts, and 80 percent of it is treated as effective.
-- **Savings:** the same weather is replayed from the sowing date, and the water used by our rule is
-  compared with the farmer's stated habit. Irrigation efficiency is assumed to be 70 percent.
+- **Savings in litres:** the same weather is replayed from the sowing date, and the water used by our rule
+  is compared with the farmer's stated habit. Irrigation efficiency is assumed to be 70 percent.
+- **Savings in pump hours and rupees:** pump flow = water of one irrigation divided by the pump hours the
+  farmer enters. Hours saved = litres saved divided by that flow. Rupees = hours saved x the hourly cost
+  the farmer enters. For rice, one irrigation is taken as 50 mm.
 
 ## Assumptions and limitations (please read)
 
@@ -66,10 +76,15 @@ Hindi and English, mobile-first, large buttons, works on a phone browser.
 - The wheat CRI timing comes from standard agronomy practice and should be confirmed with a local
   Krishi Vigyan Kendra (KVK).
 - Weather comes from a gridded model, not from the farmer's own field.
-- The savings figure depends on the habit the farmer types in. It compares against what the farmer
-  says they do, not against a measured baseline.
+- The savings figures depend on the habit, pump hours and cost the farmer types in. They compare against
+  what the farmer says they do, not against a measured baseline.
+- Voice depends on the voices installed on the device. If no voice for the chosen language is installed,
+  the Listen button is hidden and a short note is shown.
+- Offline mode needs the site to have been opened once with internet. Saved weather older than the
+  forecast window cannot be used.
 - No login. Field data is stored only in the browser (localStorage) on the farmer's device.
 - Only wheat and rice are supported for now.
+- Open-Meteo's free API is meant for non-commercial use. Check its terms before any commercial use.
 
 ## Run locally
 
@@ -80,18 +95,8 @@ npm install
 npm run dev
 ```
 
-No API keys are needed.
+No API keys are needed. The offline service worker only runs on the deployed (production) site.
 
 ## Tech
 
-React, Vite, Open-Meteo APIs (forecast and geocoding), deployed on Vercel.
-
-## Next steps
-
-Validation with a KVK or a Farmer Producer Organisation (FPO), more crops, WhatsApp or SMS alerts,
-more regional languages, voice input.
-
-## Credits
-
-Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0).
-Method: FAO Irrigation and Drainage Paper 56.
+React,
