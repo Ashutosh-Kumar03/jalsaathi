@@ -11,8 +11,25 @@ import {
   SPEECH_LABELS,
 } from '../lib/speech.js';
 
+// Is screen ke naye text (Hindi aur English)
+const X = {
+  hi: {
+    dryNote: 'खेत की सतह अभी सूख रही है। यह AWD का हिस्सा है, इससे पानी बचता है।',
+    nextIrr: 'अगली सिंचाई: {date}',
+    none7: 'अगले 7 दिन सिंचाई की ज़रूरत नहीं।',
+    anyway: 'मैंने फिर भी पानी दे दिया',
+  },
+  en: {
+    dryNote: 'The field surface is drying. This is part of AWD and it saves water.',
+    nextIrr: 'Next irrigation: {date}',
+    none7: 'No irrigation needed in the next 7 days.',
+    anyway: 'I watered anyway',
+  },
+};
+
 export default function Home({ lang, place, field, result, onMarkDone }) {
   const t = makeT(lang);
+  const x = X[lang];
   const p0 = result.plan[0];
   const kind = p0.action === 'irrigate' ? 'go' : p0.action === 'rain' ? 'skip' : 'none';
   const done = field.lastIrrigation === p0.date;
@@ -44,12 +61,20 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
     speak(buildAdviceText(lang, result), lang, () => setSpeaking(false));
   }
 
+  // Mitti ya khet ki sthiti
+  const st = result.status || {};
+  const isRice = field.crop === 'rice';
+  const riceDry = isRice && st.depthMm != null && st.depthMm <= 0;
   let moisture = '';
-  if (result.status && result.status.availPct != null) {
-    moisture = t('soilMoist', { p: result.status.availPct });
-  } else if (result.status && result.status.depthMm != null) {
-    moisture = result.status.depthMm > 0 ? t('pondWet', { mm: result.status.depthMm }) : t('pondDry');
+  if (st.availPct != null) {
+    moisture = t('soilMoist', { p: st.availPct });
+  } else if (st.depthMm != null && st.depthMm > 0) {
+    moisture = t('pondWet', { mm: st.depthMm });
   }
+
+  // Agli sinchai kab
+  const nextIrr = result.plan.slice(1).find((r) => r.action === 'irrigate');
+  const nextLine = nextIrr ? x.nextIrr.replace('{date}', fmtDate(nextIrr.date, lang)) : x.none7;
 
   return (
     <>
@@ -74,12 +99,14 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
           <>
             <div className="hero-title">🌧 {t('skipTitle')}</div>
             <div className="hero-sub">{t('skipSub')}</div>
+            <div className="hero-why">{nextLine}</div>
           </>
         )}
         {kind === 'none' && (
           <>
             <div className="hero-title">✅ {t('noneTitle')}</div>
-            <div className="hero-sub">{moisture}</div>
+            <div className="hero-sub">{riceDry ? x.dryNote : moisture}</div>
+            <div className="hero-why">{nextLine}</div>
           </>
         )}
       </div>
@@ -95,7 +122,7 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
         <div className="banner">✔ {t('doneBanner')}</div>
       ) : (
         <button className={kind === 'go' ? 'btn' : 'btn secondary'} onClick={onMarkDone}>
-          {t('markDone')}
+          {kind === 'go' ? t('markDone') : '✔ ' + x.anyway}
         </button>
       )}
 
