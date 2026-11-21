@@ -7,8 +7,9 @@ import Setup from './screens/Setup.jsx';
 import Home from './screens/Home.jsx';
 import Savings from './screens/Savings.jsx';
 import Alerts from './screens/Alerts.jsx';
+import FieldTab from './screens/FieldTab.jsx';
 
-const EMPTY = { lang: 'hi', place: null, field: null };
+const EMPTY = { lang: 'hi', place: null, field: null, history: [] };
 
 const OFFLINE = {
   hi: 'ऑफ़लाइन: पिछली बार {time} पर लिया गया मौसम डेटा इस्तेमाल हो रहा है।',
@@ -25,13 +26,14 @@ function fmtTime(ms, lang) {
 }
 
 export default function App() {
-  const [state, setState] = useState(() => loadState() || EMPTY);
+  const [state, setState] = useState(() => ({ ...EMPTY, ...(loadState() || {}) }));
   const [tab, setTab] = useState('today');
   const [editing, setEditing] = useState(false);
   const [weather, setWeather] = useState(null);
   const [status, setStatus] = useState('idle');
   const [reload, setReload] = useState(0);
   const { lang, place, field } = state;
+  const history = state.history || [];
   const t = makeT(lang);
 
   useEffect(() => {
@@ -75,8 +77,35 @@ export default function App() {
 
   const needSetup = !place || !field || editing;
 
+  // "Paani de diya" dabane par: aakhri sinchai ki date badlo aur record me jodo
   function markDone() {
-    setState((s) => ({ ...s, field: { ...s.field, lastIrrigation: result.todayDate } }));
+    const p0 = result.plan[0];
+    const today = result.todayDate;
+    setState((s) => {
+      const hist = s.history || [];
+      if (hist[0] && hist[0].date === today) return s;
+      const entry = {
+        date: today,
+        mm: p0.action === 'irrigate' ? p0.mm : 0,
+        advised: p0.action === 'irrigate',
+        prevLast: s.field.lastIrrigation || '',
+      };
+      return {
+        ...s,
+        history: [entry, ...hist].slice(0, 60),
+        field: { ...s.field, lastIrrigation: today },
+      };
+    });
+  }
+
+  // Galti se dab gaya ho to aakhri entry hatao aur pehle wali date wapas lagao
+  function undoLast() {
+    setState((s) => {
+      const hist = s.history || [];
+      if (!hist.length) return s;
+      const [last, ...rest] = hist;
+      return { ...s, history: rest, field: { ...s.field, lastIrrigation: last.prevLast || '' } };
+    });
   }
 
   function resetAll() {
@@ -128,22 +157,15 @@ export default function App() {
       body = <Alerts lang={lang} field={field} result={result} />;
     } else {
       body = (
-        <div className="card">
-          <h2>{t('yourField')}</h2>
-          <p>
-            {t(field.crop)} · {t(field.soil)} · {field.areaAcres} {t('area').includes('एकड़') ? 'एकड़' : 'acre'}
-            <br />
-            {t('sowDate')}: {field.sowDate}
-            <br />
-            {place.gps ? t('gpsPlace') : place.name}
-          </p>
-          <button className="btn" onClick={() => setEditing(true)}>
-            {t('editField')}
-          </button>
-          <button className="btn secondary" onClick={resetAll}>
-            {t('resetAll')}
-          </button>
-        </div>
+        <FieldTab
+          lang={lang}
+          place={place}
+          field={field}
+          history={history}
+          onEdit={() => setEditing(true)}
+          onReset={resetAll}
+          onUndo={undoLast}
+        />
       );
     }
   }
