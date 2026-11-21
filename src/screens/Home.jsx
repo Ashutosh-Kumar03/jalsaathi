@@ -1,5 +1,15 @@
+import { useEffect, useState } from 'react';
 import { makeT, stageKey } from '../lib/i18n.js';
 import { fmtDate, fmtNum } from '../lib/utils.js';
+import {
+  speechSupported,
+  loadVoices,
+  pickVoice,
+  speak,
+  stopSpeaking,
+  buildAdviceText,
+  SPEECH_LABELS,
+} from '../lib/speech.js';
 
 export default function Home({ lang, place, field, result, onMarkDone }) {
   const t = makeT(lang);
@@ -7,6 +17,32 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
   const kind = p0.action === 'irrigate' ? 'go' : p0.action === 'rain' ? 'skip' : 'none';
   const done = field.lastIrrigation === p0.date;
   const placeLabel = place.gps ? t('gpsPlace') : place.name;
+
+  const [speaking, setSpeaking] = useState(false);
+  const [voiceOk, setVoiceOk] = useState(false);
+  const supported = speechSupported();
+  const labels = SPEECH_LABELS[lang];
+
+  // Bhasha badalne par check karo ki us bhasha ki voice hai ya nahi
+  useEffect(() => {
+    setSpeaking(false);
+    stopSpeaking();
+    if (!supported) return;
+    loadVoices(() => setVoiceOk(!!pickVoice(lang)));
+  }, [lang, supported]);
+
+  // Page chhodte waqt awaaz band
+  useEffect(() => () => stopSpeaking(), []);
+
+  function toggleSpeak() {
+    if (speaking) {
+      stopSpeaking();
+      setSpeaking(false);
+      return;
+    }
+    setSpeaking(true);
+    speak(buildAdviceText(lang, result), lang, () => setSpeaking(false));
+  }
 
   let moisture = '';
   if (result.status && result.status.availPct != null) {
@@ -47,6 +83,13 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
           </>
         )}
       </div>
+
+      {supported && voiceOk && (
+        <button className="btn secondary" onClick={toggleSpeak}>
+          {speaking ? labels.stop : labels.listen}
+        </button>
+      )}
+      {supported && !voiceOk && <p className="muted small-text">{labels.noVoice}</p>}
 
       {done ? (
         <div className="banner">✔ {t('doneBanner')}</div>
