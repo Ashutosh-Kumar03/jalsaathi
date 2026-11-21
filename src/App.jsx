@@ -83,7 +83,7 @@ export default function App() {
     const today = result.todayDate;
     setState((s) => {
       const hist = s.history || [];
-      if (hist[0] && hist[0].date === today) return s;
+      if (hist.some((h) => h.date === today)) return s;
       const entry = {
         date: today,
         mm: p0.action === 'irrigate' ? p0.mm : 0,
@@ -98,7 +98,22 @@ export default function App() {
     });
   }
 
-  // Galti se dab gaya ho to aakhri entry hatao aur pehle wali date wapas lagao
+  // Pichli tareekh jodo (jis din kisaan ne sach me paani diya)
+  function addPast(date) {
+    setState((s) => {
+      const hist = s.history || [];
+      if (hist.some((h) => h.date === date)) return s;
+      const cur = s.field.lastIrrigation || '';
+      const entry = { date, mm: 0, advised: false, late: true, prevLast: cur };
+      return {
+        ...s,
+        history: [entry, ...hist].slice(0, 60),
+        field: { ...s.field, lastIrrigation: cur && cur > date ? cur : date },
+      };
+    });
+  }
+
+  // Galti se dab gaya ho to sabse haal me jodi entry hatao aur pehle wali date wapas lagao
   function undoLast() {
     setState((s) => {
       const hist = s.history || [];
@@ -165,6 +180,7 @@ export default function App() {
           onEdit={() => setEditing(true)}
           onReset={resetAll}
           onUndo={undoLast}
+          onAdd={addPast}
         />
       );
     }

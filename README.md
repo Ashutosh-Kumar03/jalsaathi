@@ -34,7 +34,10 @@ A small farmer growing **wheat or rice** who wants one clear answer each morning
    - A 7-day plan and alerts (irrigation, rain, crop-stage change)
 4. A savings screen compares the advice with the farmer's own habit, in litres, and, if the farmer
    enters pump hours and cost, in pump hours and rupees.
-
+5. A Field tab keeps a log of the days the farmer recorded watering (including earlier dates added
+   by hand) and shows how many days matched the app's advice. Only the most recent watering date
+   feeds the advice engine. Nothing is guessed or filled in.
+   
 Hindi and English, mobile-first, large buttons, works in a phone browser.
 
 ## What is different from what already exists
