@@ -16,10 +16,11 @@ Track 7: Climate, Energy and Resource Efficiency. Problem: Monitoring and Reduci
 ## Team Code Hustlers
 
 - Ashutosh Kumar (team leader)
+- Vinita Gurjar
 - Arpit Singh Chauhan
 - Harshit Goyal
 - Abhinav Sahu
-- Vinita Gurjar
+
 
 ## The problem
 
