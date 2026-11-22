@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { makeT, stageKey } from '../lib/i18n.js';
 import { fmtDate, fmtNum } from '../lib/utils.js';
 import { placeText } from '../lib/weather.js';
+import Icon from '../components/Icon.jsx';
 import {
   speechSupported,
   loadVoices,
@@ -9,7 +10,6 @@ import {
   speak,
   stopSpeaking,
   buildAdviceText,
-  SPEECH_LABELS,
 } from '../lib/speech.js';
 
 // Is screen ke naye text (Hindi aur English)
@@ -19,12 +19,18 @@ const X = {
     nextIrr: 'अगली सिंचाई: {date}',
     none7: 'अगले 7 दिन सिंचाई की ज़रूरत नहीं।',
     anyway: 'मैंने फिर भी पानी दे दिया',
+    listen: 'सुनें',
+    stop: 'रोकें',
+    noVoice: 'इस डिवाइस में हिंदी आवाज़ नहीं है। (सेटिंग में Text-to-speech से हिंदी आवाज़ जोड़ सकते हैं।)',
   },
   en: {
     dryNote: 'The field surface is drying. This is part of AWD and it saves water.',
     nextIrr: 'Next irrigation: {date}',
     none7: 'No irrigation needed in the next 7 days.',
     anyway: 'I watered anyway',
+    listen: 'Listen',
+    stop: 'Stop',
+    noVoice: 'No English voice found on this device.',
   },
 };
 
@@ -39,7 +45,6 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
   const [speaking, setSpeaking] = useState(false);
   const [voiceOk, setVoiceOk] = useState(false);
   const supported = speechSupported();
-  const labels = SPEECH_LABELS[lang];
 
   // Bhasha badalne par check karo ki us bhasha ki voice hai ya nahi
   useEffect(() => {
@@ -81,7 +86,8 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
     <>
       <div className="card tight">
         <b>
-          {field.crop === 'wheat' ? '🌾' : '🌱'} {t(field.crop)} · {placeLabel}
+          <Icon name="sprout" size={18} style={{ marginRight: 6 }} />
+          {t(field.crop)} · {placeLabel}
         </b>
         <div className="muted">
           {t(stageKey(result.stage.en))} · {t('dayOf', { d: result.dayNumToday, n: result.seasonDays })}
@@ -91,21 +97,30 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
       <div className={'hero ' + kind}>
         {kind === 'go' && (
           <>
-            <div className="hero-title">💧 {t('goTitle')}</div>
+            <div className="hero-title">
+              <Icon name="drop" size={28} style={{ marginRight: 8 }} />
+              {t('goTitle')}
+            </div>
             <div className="hero-sub">{t('amount', { mm: p0.mm, l: fmtNum(p0.litres) })}</div>
             <div className="hero-why">{t('why_' + p0.reason)}</div>
           </>
         )}
         {kind === 'skip' && (
           <>
-            <div className="hero-title">🌧 {t('skipTitle')}</div>
+            <div className="hero-title">
+              <Icon name="rain" size={28} style={{ marginRight: 8 }} />
+              {t('skipTitle')}
+            </div>
             <div className="hero-sub">{t('skipSub')}</div>
             <div className="hero-why">{nextLine}</div>
           </>
         )}
         {kind === 'none' && (
           <>
-            <div className="hero-title">✅ {t('noneTitle')}</div>
+            <div className="hero-title">
+              <Icon name="ok" size={28} style={{ marginRight: 8 }} />
+              {t('noneTitle')}
+            </div>
             <div className="hero-sub">{riceDry ? x.dryNote : moisture}</div>
             <div className="hero-why">{nextLine}</div>
           </>
@@ -114,16 +129,21 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
 
       {supported && voiceOk && (
         <button className="btn secondary" onClick={toggleSpeak}>
-          {speaking ? labels.stop : labels.listen}
+          <Icon name={speaking ? 'stop' : 'volume'} size={20} style={{ marginRight: 8 }} />
+          {speaking ? x.stop : x.listen}
         </button>
       )}
-      {supported && !voiceOk && <p className="muted small-text">{labels.noVoice}</p>}
+      {supported && !voiceOk && <p className="muted small-text">{x.noVoice}</p>}
 
       {done ? (
-        <div className="banner">✔ {t('doneBanner')}</div>
+        <div className="banner">
+          <Icon name="check" size={18} style={{ marginRight: 6 }} />
+          {t('doneBanner')}
+        </div>
       ) : (
         <button className={kind === 'go' ? 'btn' : 'btn secondary'} onClick={onMarkDone}>
-          {kind === 'go' ? t('markDone') : '✔ ' + x.anyway}
+          <Icon name="check" size={20} style={{ marginRight: 8 }} />
+          {kind === 'go' ? t('markDone') : x.anyway}
         </button>
       )}
 
@@ -133,6 +153,8 @@ export default function Home({ lang, place, field, result, onMarkDone }) {
           <div className={'day ' + r.action} key={r.date}>
             <div className="day-date">{fmtDate(r.date, lang)}</div>
             <div className="day-act">
+              {r.action === 'irrigate' && <Icon name="drop" size={15} style={{ marginRight: 4 }} />}
+              {r.action === 'rain' && <Icon name="rain" size={15} style={{ marginRight: 4 }} />}
               {r.action === 'irrigate' ? t('dayIrr') : r.action === 'rain' ? t('dayRain') : t('dayNone')}
               {r.action === 'irrigate' && <small> · {r.mm} mm</small>}
             </div>

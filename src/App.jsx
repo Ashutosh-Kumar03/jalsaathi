@@ -3,6 +3,7 @@ import { getDailyCached } from './lib/weather.js';
 import { runAdvisor } from './lib/engine.js';
 import { makeT } from './lib/i18n.js';
 import { loadState, saveState, clearState } from './lib/utils.js';
+import Icon from './components/Icon.jsx';
 import Setup from './screens/Setup.jsx';
 import Home from './screens/Home.jsx';
 import Savings from './screens/Savings.jsx';
@@ -192,16 +193,20 @@ export default function App() {
         className="banner"
         style={{ background: '#fff4d6', color: '#5a4300', fontWeight: 600, fontSize: 14 }}
       >
-        📴 {OFFLINE[lang].replace('{time}', fmtTime(weather.fetchedAt, lang))}
+        <Icon name="offline" size={18} style={{ marginRight: 8 }} />
+        {OFFLINE[lang].replace('{time}', fmtTime(weather.fetchedAt, lang))}
       </div>
     ) : null;
 
   return (
     <div className="app">
       <header className="topbar">
-        <div>
-          <b>💧 {t('appName')}</b>
-          <small>{t('tagline')}</small>
+        <div className="brand">
+          <img className="brand-logo" src="/logo.svg" alt="" width="40" height="40" />
+          <div>
+            <b>{t('appName')}</b>
+            <small>{t('tagline')}</small>
+          </div>
         </div>
         <button className="lang-btn" onClick={() => setState((s) => ({ ...s, lang: s.lang === 'hi' ? 'en' : 'hi' }))}>
           {lang === 'hi' ? 'English' : 'हिन्दी'}
@@ -231,13 +236,13 @@ export default function App() {
       {!needSetup && (
         <nav className="nav">
           {[
-            ['today', '🏠', t('tabToday')],
-            ['savings', '💰', t('tabSavings')],
-            ['alerts', '🔔', t('tabAlerts')],
-            ['field', '🌾', t('tabField')],
+            ['today', 'home', t('tabToday')],
+            ['savings', 'rupee', t('tabSavings')],
+            ['alerts', 'bell', t('tabAlerts')],
+            ['field', 'sprout', t('tabField')],
           ].map(([k, icon, label]) => (
             <button key={k} className={tab === k ? 'active' : ''} onClick={() => setTab(k)}>
-              <span>{icon}</span>
+              <Icon name={icon} size={22} />
               <small>{label}</small>
             </button>
           ))}

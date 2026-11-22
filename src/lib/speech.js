@@ -83,12 +83,12 @@ export function speak(text, lang, onEnd) {
 
 export const SPEECH_LABELS = {
   hi: {
-    listen: '🔊 सुनें',
+    listen: ' सुनें',
     stop: '⏹ रोकें',
     noVoice: 'इस डिवाइस में हिंदी आवाज़ नहीं है। (सेटिंग में Text-to-speech से हिंदी आवाज़ जोड़ सकते हैं।)',
   },
   en: {
-    listen: '🔊 Listen',
+    listen: 'Listen',
     stop: '⏹ Stop',
     noVoice: 'No English voice found on this device.',
   },

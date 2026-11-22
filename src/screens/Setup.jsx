@@ -3,6 +3,7 @@ import { searchPlace, getMyLocation, reverseGeocode, placeText } from '../lib/we
 import { ACRE_M2 } from '../lib/engine.js';
 import { makeT } from '../lib/i18n.js';
 import { todayStr } from '../lib/utils.js';
+import Icon from '../components/Icon.jsx';
 
 // Pump aur location ke naye fields ka text
 const X = {
@@ -189,13 +190,15 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
           </button>
         ))}
         <button className="btn secondary" onClick={useGps} disabled={busy}>
+          <Icon name="pin" size={20} style={{ marginRight: 8 }} />
           {t('useGps')}
         </button>
         {msg && <p className="error">{msg}</p>}
         {info && <p className="muted">{info}</p>}
         {place && (
           <p className="chosen">
-            ✅ {t('selectedPlace')}: <b>{placeLabel}</b>
+            <Icon name="check" size={18} style={{ marginRight: 6 }} />
+            {t('selectedPlace')}: <b>{placeLabel}</b>
           </p>
         )}
         <button className="btn" disabled={!place || busy} onClick={() => setStep(2)}>
@@ -213,7 +216,7 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
       <div className="choice-grid">
         {['wheat', 'rice'].map((k) => (
           <button key={k} className={'choice' + (crop === k ? ' sel' : '')} onClick={() => setCrop(k)}>
-            {k === 'wheat' ? '🌾 ' : '🌱 '}
+            <Icon name="sprout" size={20} style={{ marginRight: 8 }} />
             {t(k)}
           </button>
         ))}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { makeT } from '../lib/i18n.js';
 import { fmtDate, todayStr } from '../lib/utils.js';
 import { placeText } from '../lib/weather.js';
+import Icon from '../components/Icon.jsx';
 
 const X = {
   hi: {
@@ -82,7 +83,7 @@ export default function FieldTab({ lang, place, field, history, onEdit, onReset,
             <p>{x.summary.replace('{n}', list.length).replace('{k}', followed)}</p>
             {sorted.map((h, i) => (
               <div className="alert-item" key={h.date + '-' + i}>
-                <span>💧</span>
+                <Icon name="drop" size={18} style={{ color: '#1769aa', marginTop: 3 }} />
                 <span>
                   {fmtDate(h.date, lang)}
                   {h.advised && h.mm > 0 ? ' · ' + h.mm + ' mm' : ''}
