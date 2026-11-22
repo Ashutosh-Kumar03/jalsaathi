@@ -1,14 +1,25 @@
+<p align="center">
+  <img src="public/logo.png" alt="JalSaathi logo" width="110" />
+</p>
+
 # JalSaathi (जलसाथी)
 
 **Daily irrigation advice for small farmers, in Hindi and English, using real weather data. No sensors, no login.**
 
-Built for the *Build for Bharat* hackathon.
+Built by team **Code Hustlers** for **Hack With Delhi 4.0** (Build for Bharat challenge).
 Track 7: Climate, Energy and Resource Efficiency. Problem: Monitoring and Reducing Agricultural Water Footprint.
 
 - **Live demo:** https://jalsaathi-nine.vercel.app
 - **Code:** https://github.com/Ashutosh-Kumar03/jalsaathi
 - **Demo video:** [add link when ready]
-- **Team:** [team name and members]
+
+## Team Code Hustlers
+
+- Ashutosh Kumar (team leader)
+- Arpit Singh Chauhan
+- Harshit Goyal
+- Abhinav Sahu
+- Vinita Gurjar
 
 ## The problem
 
@@ -27,18 +38,19 @@ A small farmer growing **wheat or rice** who wants one clear answer each morning
 
 ## What it does
 
-1. The farmer picks the field location (search or GPS), crop, soil type, sowing date and field size.
+1. The farmer picks the field location (search by name, or GPS with the place name shown), crop, soil
+   type, sowing date and field size.
 2. The app fetches real weather data for that exact location (past 30 days and next 7 days).
 3. It runs a daily soil-water balance and answers:
    - **Water today / Do not water (rain is coming) / No watering needed**, with millimetres and litres
-   - A 7-day plan and alerts (irrigation, rain, crop-stage change)
+   - The next irrigation date, a 7-day plan, and in-app alerts (irrigation, rain, crop-stage change)
 4. A savings screen compares the advice with the farmer's own habit, in litres, and, if the farmer
    enters pump hours and cost, in pump hours and rupees.
 5. A Field tab keeps a log of the days the farmer recorded watering (including earlier dates added
    by hand) and shows how many days matched the app's advice. Only the most recent watering date
    feeds the advice engine. Nothing is guessed or filled in.
 
-Hindi and English, mobile-first, large buttons, works in a phone browser.
+Hindi and English, mobile-first, large buttons, works in a phone browser and can be added to the home screen.
 
 ## What is different from what already exists
 
@@ -81,15 +93,17 @@ Hindi and English, mobile-first, large buttons, works in a phone browser.
 - Weather comes from a gridded model, not from the farmer's own field.
 - The savings figures depend on the habit, pump hours and cost the farmer types in. They compare against
   what the farmer says they do, not against a measured baseline.
+- Alerts appear inside the app and can be read aloud. SMS or WhatsApp delivery is not built yet,
+  because it needs a paid messaging gateway.
 - Voice depends on the voices installed on the device. If no voice for the chosen language is installed,
   the Listen button is hidden and a short note is shown.
 - Offline mode needs the site to have been opened once with internet. Saved weather older than the
   forecast window cannot be used.
 - No login. Field data is stored only in the browser (localStorage) on the farmer's device.
-- Only wheat and rice are supported for now.
-- Open-Meteo's free API is meant for non-commercial use. Check its terms before any commercial use.
 - Place names for GPS locations come from OpenStreetMap Nominatim (© OpenStreetMap contributors, ODbL).
   When the GPS button is used, the coordinates are sent to that service to get the name.
+- Only wheat and rice are supported for now.
+- Open-Meteo's free API is meant for non-commercial use. Check its terms before any commercial use.
 
 ## Run locally
 
@@ -104,4 +118,16 @@ No API keys are needed. The offline service worker only runs on the deployed (pr
 
 ## Tech
 
-React,
+React, Vite, Open-Meteo APIs (forecast and geocoding), OpenStreetMap Nominatim (reverse geocoding),
+Web Speech API (speech synthesis), a small service worker, deployed on Vercel.
+
+## Next steps
+
+Validation with a KVK or a Farmer Producer Organisation (FPO), more crops, SMS or WhatsApp alerts,
+optional accounts and cloud sync, an FPO dashboard, more regional languages, voice input.
+
+## Credits
+
+Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0).
+Place names by [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL).
+Method: FAO Irrigation and Drainage Paper 56.
