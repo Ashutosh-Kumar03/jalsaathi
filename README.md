@@ -106,6 +106,8 @@ Hindi and English, mobile-first, large buttons, works in a phone browser and can
 - Only wheat and rice are supported for now.
 - Open-Meteo's free API is meant for non-commercial use. Check its terms before any commercial use.
 
+**Problem brief:** [docs/PROBLEM_BRIEF.md](docs/PROBLEM_BRIEF.md)
+
 ## Run locally
 
 ```bash
