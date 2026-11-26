@@ -9,7 +9,9 @@ const X = {
     acre: 'एकड़',
     histTitle: 'पानी दिए गए दिन',
     empty: 'अभी कोई एंट्री नहीं। "आज" टैब में "मैंने आज पानी दे दिया" दबाने पर यहाँ दर्ज होगा।',
-    summary: 'आपने {n} बार पानी दिया, इनमें से {k} बार जलसाथी की सलाह के दिन।',
+    summary: 'आपने {n} {unit} पानी दिया, इनमें से {k} {unit} जलसाथी की सलाह के दिन।',
+    unitOne: 'बार',
+    unitMany: 'बार',
     advised: 'सलाह के अनुसार',
     other: 'अपनी मर्ज़ी से',
     late: 'बाद में जोड़ा',
@@ -25,7 +27,9 @@ const X = {
     acre: 'acre',
     histTitle: 'Days you watered',
     empty: 'No entries yet. Tap "I watered today" on the Today tab and it will be recorded here.',
-    summary: 'You watered {n} times, {k} of them on days JalSaathi advised it.',
+    summary: 'You watered {n} {unit}, {k} of them on days JalSaathi advised it.',
+    unitOne: 'time',
+    unitMany: 'times',
     advised: 'As advised',
     other: 'On your own',
     late: 'Added later',
@@ -80,7 +84,13 @@ export default function FieldTab({ lang, place, field, history, onEdit, onReset,
           <p className="muted">{x.empty}</p>
         ) : (
           <>
-            <p>{x.summary.replace('{n}', list.length).replace('{k}', followed)}</p>
+            <p>
+              {x.summary
+                .replace('{n}', list.length)
+                .replace('{k}', followed)
+                .split('{unit}')
+                .join(list.length === 1 ? x.unitOne : x.unitMany)}
+            </p>
             {sorted.map((h, i) => (
               <div className="alert-item" key={h.date + '-' + i}>
                 <Icon name="drop" size={18} style={{ color: '#1769aa', marginTop: 3 }} />
