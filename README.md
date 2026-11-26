@@ -11,7 +11,7 @@ Track 7: Climate, Energy and Resource Efficiency. Problem: Monitoring and Reduci
 
 - **Live demo:** https://jalsaathi-nine.vercel.app
 - **Code:** https://github.com/Ashutosh-Kumar03/jalsaathi
-- **Demo video:** [add link when ready]
+- **Demo video:** https://drive.google.com/file/d/1UQJW90UrcjmI3yR3taN8E9qvDbcevISB/view?usp=drive_link
 
 ## Team Code Hustlers
 
@@ -20,6 +20,7 @@ Track 7: Climate, Energy and Resource Efficiency. Problem: Monitoring and Reduci
 - Arpit Singh Chauhan
 - Harshit Goyal
 - Abhinav Sahu
+- Sartaaj Singh Rathi
 
 
 ## The problem
