@@ -53,6 +53,16 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
   const [costPerHour, setCostPerHour] = useState(f.costPerHour ? String(f.costPerHour) : '');
   const [error, setError] = useState('');
 
+  // Koi bhi field chhedte hi purana error hata do
+  function clearErr() {
+    if (error) setError('');
+  }
+  // Input/select ke liye: value set karo aur error hatao
+  const onInput = (setter) => (e) => {
+    clearErr();
+    setter(e.target.value);
+  };
+
   async function doSearch() {
     if (!query.trim()) return;
     setBusy(true);
@@ -215,7 +225,14 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
       <label>{t('crop')}</label>
       <div className="choice-grid">
         {['wheat', 'rice'].map((k) => (
-          <button key={k} className={'choice' + (crop === k ? ' sel' : '')} onClick={() => setCrop(k)}>
+          <button
+            key={k}
+            className={'choice' + (crop === k ? ' sel' : '')}
+            onClick={() => {
+              clearErr();
+              setCrop(k);
+            }}
+          >
             <Icon name="sprout" size={20} style={{ marginRight: 8 }} />
             {t(k)}
           </button>
@@ -225,28 +242,35 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
       <label>{t('soil')}</label>
       <div className="choice-grid three">
         {['sandy', 'loam', 'clay'].map((k) => (
-          <button key={k} className={'choice' + (soil === k ? ' sel' : '')} onClick={() => setSoil(k)}>
+          <button
+            key={k}
+            className={'choice' + (soil === k ? ' sel' : '')}
+            onClick={() => {
+              clearErr();
+              setSoil(k);
+            }}
+          >
             {t(k)}
           </button>
         ))}
       </div>
 
       <label>{t('sowDate')}</label>
-      <input type="date" value={sowDate} max={todayStr()} onChange={(e) => setSowDate(e.target.value)} />
+      <input type="date" value={sowDate} max={todayStr()} onChange={onInput(setSowDate)} />
 
       <label>{t('area')}</label>
-      <input type="number" inputMode="decimal" min="0" step="0.1" value={area} onChange={(e) => setArea(e.target.value)} />
+      <input type="number" inputMode="decimal" min="0" step="0.1" value={area} onChange={onInput(setArea)} />
 
       <label>{t('lastIrr')}</label>
-      <input type="date" value={lastIrr} max={todayStr()} onChange={(e) => setLastIrr(e.target.value)} />
+      <input type="date" value={lastIrr} max={todayStr()} onChange={onInput(setLastIrr)} />
 
       {crop === 'wheat' && (
         <div className="subcard">
           <b>{t('habitTitle')}</b>
           <label>{t('habitEvery')}</label>
-          <input type="number" inputMode="numeric" min="3" max="30" value={habitDays} onChange={(e) => setHabitDays(e.target.value)} />
+          <input type="number" inputMode="numeric" min="3" max="30" value={habitDays} onChange={onInput(setHabitDays)} />
           <label>{t('habitDepth')}</label>
-          <select value={habitMm} onChange={(e) => setHabitMm(e.target.value)}>
+          <select value={habitMm} onChange={onInput(setHabitMm)}>
             <option value="40">{t('hLight')}</option>
             <option value="60">{t('hNormal')}</option>
             <option value="80">{t('hHeavy')}</option>
@@ -264,7 +288,7 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
           min="0"
           step="0.5"
           value={pumpHours}
-          onChange={(e) => setPumpHours(e.target.value)}
+          onChange={onInput(setPumpHours)}
         />
         <label>{x.pumpCost}</label>
         <input
@@ -273,7 +297,7 @@ export default function Setup({ lang, setLang, initial, startStep, onDone }) {
           min="0"
           step="1"
           value={costPerHour}
-          onChange={(e) => setCostPerHour(e.target.value)}
+          onChange={onInput(setCostPerHour)}
         />
         <small className="muted">{x.pumpNote}</small>
         {crop === 'rice' && <small className="muted">{x.riceAssume}</small>}
