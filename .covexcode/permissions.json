@@ -1,14 +1,4 @@
 {
   "version": 1,
-  "rules": [
-    {
-      "kind": "",
-      "match": "exact",
-      "pattern": "$ node -e \"\nconst fs=require('fs');\nconst src=fs.readFileSync('src/screens/FieldTab.jsx','utf8');\nconst m=src.match(/const X = \\{[\\s\\S]*?\\n\\};/)[0];\nconst X=eval('('+m.replace('const X = ','').replace(/;\\$/,'')+')');\nconst render=(lang,n,k)=>{const x=X[lang];return x.summary.replace('{n}',n).replace('{k}',k).split('{unit}').join(n===1?x.unitOne:x.unitMany);};\nfor(const lang of ['en','hi']) for(const [n,k] of [[1,0],[1,1],[3,1],[5,4],[12,0]]) console.log(lang,'n='+n,'k='+k,'->',render(lang,n,k));\n\"",
-      "createdAt": "2026-11-26T09:46:49.288Z",
-      "source": "user",
-      "decision": "allow",
-      "scope": "session"
-    }
-  ]
+  "rules": []
 }
